@@ -5,6 +5,11 @@ cdk-virtual-scroll-viewport {
     height: 340px;
   }
 
+  .emotion{
+    z-index: 2;
+    color: #fff;
+  }
+  
   // Bonus points
   &::-webkit-scrollbar {
     width: 1em;

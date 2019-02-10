@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
-import { map, mergeMap, pluck, scan, tap, throttleTime } from 'rxjs/operators';
+import { map, mergeMap, pluck, tap, throttleTime } from 'rxjs/operators';
 import { PhotoSearchService } from '../../../../shared/services/photo-search/photo-search.service';
 import { getFlickrPhotoUrl } from '../../../../shared/helpers/helper-functions';
 import { Photo } from '../../../../shared/interfaces/photos.interface';
 import { flatten } from '@angular/compiler';
+import { PhotoEmotionsService } from '../../../../shared/services/photo-emotions/photo-emotions.service';
 
 @Component({
   selector: 'app-photos-infinite-scroll',
@@ -15,24 +16,33 @@ import { flatten } from '@angular/compiler';
 export class PhotosInfiniteScrollComponent implements OnInit {
 
   @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport;
-  batch = 24;
+  batch = 10;
   photosetEnd = false;
   photosEnd = false;
 
   offset = new BehaviorSubject<number>(1);
-  infinite: Observable<Photo[]>;
+  // infinite: Observable<Photo[]>;
+  photos: Photo[] = [];
 
   constructor(
-    private photoSearchService: PhotoSearchService
+    private photoSearchService: PhotoSearchService,
+    private photoEmotionsService: PhotoEmotionsService,
   ) {
     const batchMap = this.offset.pipe(
       throttleTime(500),
-      mergeMap(offset => this.getBatch(offset)), // TODO: try mergeMap(this.getBatch)
-      scan((acc, batch) => {
-        return { ...acc, ...batch };
-      }, {}));
-
-    this.infinite = batchMap.pipe(map(v => Object.values(v)));
+      mergeMap(offset => this.getBatch(offset)),
+      // scan((acc, batch) => {
+      //   console.log('acc batch', acc, batch);
+      //   return { ...acc, ...batch };
+      // }, {}));
+    ).subscribe(async batch => {
+      const batchArray = Object.values(batch);
+      for (const photo of batchArray) {
+        photo.emotion = await this.photoEmotionsService.getPhotoEmotion(photo.url).pipe(pluck('emotion')).toPromise() as string;
+        this.photos.push(photo);
+        console.log('this.photos', this.photos);
+      }
+    });
   }
 
   ngOnInit() {
@@ -67,9 +77,7 @@ export class PhotosInfiniteScrollComponent implements OnInit {
 
   mergeSources(photoSources: Observable<Photo[]>[]): Observable<{ [id: number]: Photo }> {
     return forkJoin(photoSources).pipe(
-      map((photos) => {
-        return this.mapToUniquePhotos(photos);
-      })
+      map(photos => this.mapToUniquePhotos(photos)),
     );
   }
 
@@ -94,5 +102,10 @@ export class PhotosInfiniteScrollComponent implements OnInit {
     if (end === total) {
       this.offset.next(offset);
     }
+  }
+
+  trackByFn(photo: Photo) {
+    console.log('ph', photo);
+    return photo.id;
   }
 }

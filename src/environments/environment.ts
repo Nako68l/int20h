@@ -4,8 +4,11 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://api.flickr.com/services/rest/',
-  flickrApiKey: '6e4937309c087a10f9a6585bcf8e524b'
+  flickrApiUrl: 'https://api.flickr.com/services/rest/',
+  flickrApiKey: '6e4937309c087a10f9a6585bcf8e524b',
+  faceppApiUrl: '/api/facepp/v3/detect',
+  faceppApiKey: 'x4tBNQQSe8zpwEZTm0DHVaX73B9z2AO7',
+  faceppApiSecret: 'CZXWq66VkaefFBiCX1FMWdz_Y8lQMxTB'
 };
 
 /*

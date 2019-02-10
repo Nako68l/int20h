@@ -23,6 +23,7 @@ export interface Photo {
   farm: number;
   title: string;
   url?: string;
+  emotion?: string;
   isprimary: string;
   ispublic: number;
   isfriend: number;
