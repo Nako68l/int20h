@@ -4,9 +4,9 @@
   <cdk-virtual-scroll-viewport itemSize="340" (scrolledIndexChange)="nextBatch($event, (offset.getValue() + 1))">
 
 
-    <li *cdkVirtualFor="let photo of photos" class="animated lightSpeedIn">
+    <div *cdkVirtualFor="let photo of photos">
       <img [src]="photo.url" alt="">
-    </li>
+    </div>
 
   </cdk-virtual-scroll-viewport>
 
