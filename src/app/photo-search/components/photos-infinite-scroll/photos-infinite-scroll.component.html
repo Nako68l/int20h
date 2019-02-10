@@ -1,0 +1,13 @@
+<ng-container *ngIf="infinite | async as photos">
+
+
+  <cdk-virtual-scroll-viewport itemSize="340" (scrolledIndexChange)="nextBatch($event, (offset.getValue() + 1))">
+
+
+    <li *cdkVirtualFor="let photo of photos" class="animated lightSpeedIn">
+      <img [src]="photo.url" alt="">
+    </li>
+
+  </cdk-virtual-scroll-viewport>
+
+</ng-container>
